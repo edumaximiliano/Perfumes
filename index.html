@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>O Cofre — Atelier Olfativo</title>
+<meta name="theme-color" content="#0e0c0a" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="O Cofre" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230e0c0a'/%3E%3Ctext x='50' y='68' font-family='Georgia,serif' font-size='54' fill='%23c9a96a' text-anchor='middle'%3EE%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e0c0a; --bg2:#16120d; --panel:#1b1611; --line:#352b20;
+    --gold:#c9a96a; --gold-soft:#a98c55; --parch:#ece4d3; --muted:#8f8267;
+    --wine:#6e3b34; --green:#5c6b4a; --blue:#43607a;
+    --shadow:0 18px 50px -20px rgba(0,0,0,.8);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:
+      radial-gradient(120% 80% at 80% -10%, #241c12 0%, transparent 55%),
+      radial-gradient(90% 60% at 0% 110%, #1a130d 0%, transparent 50%),
+      var(--bg);
+    color:var(--parch); font-family:'Jost',system-ui,sans-serif; font-weight:300;
+    line-height:1.5; min-height:100vh; padding-bottom:env(safe-area-inset-bottom);
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{ /* grão */
+    content:""; position:fixed; inset:0; pointer-events:none; opacity:.05; z-index:9;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 18px}
+  header{padding:46px 0 22px;text-align:center;position:relative}
+  .kicker{font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold-soft)}
+  h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(40px,12vw,68px);
+     line-height:.95;letter-spacing:.01em;margin:6px 0 4px;color:var(--parch)}
+  h1 .amp{color:var(--gold);font-style:italic;font-weight:500}
+  .sub{font-size:13px;color:var(--muted);max-width:46ch;margin:10px auto 0;letter-spacing:.02em}
+  .rule{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:26px 0}
+
+  /* Painel seletor */
+  .console{background:linear-gradient(180deg,var(--panel),#150f0a);border:1px solid var(--line);
+    border-radius:18px;padding:20px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .console::after{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(201,169,106,.5),transparent)}
+  .ctitle{font-family:'Cormorant Garamond',serif;font-size:23px;color:var(--gold);letter-spacing:.02em}
+  .field{margin-top:16px}
+  .label{font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin-bottom:9px;display:block}
+  select{width:100%;background:#0f0b07;color:var(--parch);border:1px solid var(--line);
+    border-radius:11px;padding:13px 14px;font-family:'Jost';font-size:15px;-webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a96a' stroke-width='1.6' fill='none'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 14px center}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{flex:1 1 auto;min-width:72px;text-align:center;background:#0f0b07;border:1px solid var(--line);
+    color:var(--muted);border-radius:10px;padding:10px 8px;font-size:13px;cursor:pointer;transition:.18s;user-select:none}
+  .chip.on{background:rgba(201,169,106,.13);border-color:var(--gold-soft);color:var(--parch)}
+  .go{margin-top:18px;width:100%;background:linear-gradient(180deg,#d8b878,#b6914f);color:#1a1206;border:none;
+    border-radius:12px;padding:15px;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:19px;
+    letter-spacing:.04em;cursor:pointer;text-transform:uppercase}
+  .go:active{transform:translateY(1px)}
+
+  /* Resultados */
+  #out{margin-top:8px}
+  .verdict{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--gold);
+    border-radius:12px;padding:16px 16px;margin-top:18px;animation:rise .5s both}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .vhead{font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-soft);margin-bottom:4px}
+  .pick{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px dashed var(--line)}
+  .pick:last-child{border-bottom:none}
+  .pick .nm{font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--parch);line-height:1.1}
+  .pick .br{font-size:11px;color:var(--muted);letter-spacing:.04em;display:block;margin-top:2px;font-family:'Jost'}
+  .pick .why{font-size:12px;color:var(--muted);max-width:20ch;text-align:right;flex-shrink:0}
+  .score{font-size:10px;color:var(--gold-soft);letter-spacing:.1em}
+  .combo{background:linear-gradient(180deg,#1a130d,#140e09);border:1px solid var(--line);border-radius:12px;padding:14px 15px;margin-top:12px}
+  .combo .cx{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--gold)}
+  .combo .cx em{color:var(--parch);font-style:italic}
+  .combo .cn{font-size:12.5px;color:var(--muted);margin-top:5px}
+  .combo .cbase{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#8a7d63;margin-top:8px}
+  .empty{font-size:13px;color:var(--muted);font-style:italic;padding:8px 0}
+
+  /* Catálogo */
+  .barrow{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+  .count{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gold)}
+  .count small{font-family:'Jost';font-size:11px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;display:block}
+  #search{flex:1;min-width:160px;background:#0f0b07;border:1px solid var(--line);color:var(--parch);
+    border-radius:10px;padding:11px 13px;font-family:'Jost';font-size:14px}
+  .fav-toggle{background:#0f0b07;border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:11px 13px;font-size:13px;cursor:pointer}
+  .fav-toggle.on{color:var(--gold);border-color:var(--gold-soft)}
+  .card{background:linear-gradient(180deg,var(--panel),#140e09);border:1px solid var(--line);border-radius:14px;
+    padding:15px 16px;margin-bottom:12px;position:relative}
+  .card h3{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:24px;color:var(--parch);line-height:1.04;padding-right:34px}
+  .card .brand{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-soft);margin-top:3px}
+  .insp{font-size:12px;color:var(--muted);margin-top:9px;font-style:italic}
+  .insp b{color:var(--parch);font-style:normal;font-weight:400}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
+  .tag{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:20px;border:1px solid var(--line);color:var(--muted)}
+  .tag.fam{color:var(--gold);border-color:var(--gold-soft)}
+  .tag.cli{color:var(--blue);border-color:#2c3d4d}
+  .tag.hot{color:#c98a5a;border-color:#5a3d28}
+  .meta{display:flex;gap:18px;margin-top:11px;font-size:11.5px;color:var(--muted)}
+  .meta b{color:var(--parch);font-weight:400}
+  .pnote{font-size:12.5px;color:#b9ad92;margin-top:11px;border-top:1px solid var(--line);padding-top:10px;line-height:1.45}
+  .pnote::before{content:"☞ ";color:var(--gold-soft)}
+  .conf{position:absolute;top:14px;right:14px;display:flex;gap:8px;align-items:center}
+  .heart{cursor:pointer;font-size:18px;line-height:1;color:#4a3f30;transition:.15s}
+  .heart.on{color:var(--wine)}
+  .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .c-alta{background:#6f9a5e}.c-media{background:#c9a96a}.c-baixa{background:#a05a4e}
+
+  details.note{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:4px 16px;margin:20px 0}
+  details.note summary{cursor:pointer;padding:12px 0;font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold);list-style:none}
+  details.note summary::-webkit-details-marker{display:none}
+  details.note summary::after{content:" +";color:var(--gold-soft)}
+  details.note[open] summary::after{content:" –"}
+  details.note p{font-size:13px;color:#b9ad92;margin:0 0 13px;line-height:1.55}
+  details.note b{color:var(--parch);font-weight:400}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin:14px 0 4px}
+  .legend span{display:flex;align-items:center;gap:6px}
+  footer{text-align:center;padding:36px 0 60px;color:var(--muted);font-size:11px;letter-spacing:.04em}
+  .install{background:linear-gradient(180deg,#1a130d,#120d08);border:1px dashed var(--gold-soft);border-radius:14px;padding:16px 18px;margin:8px 0 26px}
+  .install b{color:var(--gold);font-weight:500}
+  .install ol{margin:8px 0 0 18px;font-size:13px;color:#b9ad92;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Atelier Olfativo Particular</div>
+    <h1>O&nbsp;<span class="amp">Cofre</span></h1>
+    <p class="sub">Curadoria e arquitetura de uso da sua coleção — característica, ocasião, clima e combinações de dois perfumes.</p>
+  </header>
+
+  <!-- CONSOLE -->
+  <section class="console">
+    <div class="ctitle">Para qual momento?</div>
+    <div class="field">
+      <label class="label" for="occ">Ocasião</label>
+      <select id="occ"></select>
+    </div>
+    <div class="field">
+      <span class="label">Temperatura do dia</span>
+      <div class="chips" id="cli">
+        <div class="chip" data-c="frio">Frio<br><small style="font-size:9px;color:var(--muted)">&lt;18°</small></div>
+        <div class="chip on" data-c="ameno">Ameno<br><small style="font-size:9px;color:var(--muted)">18–26°</small></div>
+        <div class="chip" data-c="quente">Quente<br><small style="font-size:9px;color:var(--muted)">26–32°</small></div>
+        <div class="chip" data-c="calor">Calorão<br><small style="font-size:9px;color:var(--muted)">32°+</small></div>
+      </div>
+    </div>
+    <div class="field">
+      <span class="label">Período</span>
+      <div class="chips" id="per">
+        <div class="chip on" data-p="versatil">Tanto faz</div>
+        <div class="chip" data-p="dia">Dia</div>
+        <div class="chip" data-p="noite">Noite</div>
+      </div>
+    </div>
+    <button class="go" id="go">Recomendar</button>
+    <div id="out"></div>
+  </section>
+
+  <details class="note">
+    <summary>Leitura do perfumista — antes de confiar nas indicações</summary>
+    <p><b>Eu não cheirei nada disto.</b> As classificações vêm das pirâmides olfativas e do consenso público de cada fragrância, não do meu nariz. Pele, dosagem e clima mudam tudo.</p>
+    <p><b>Boa parte da coleção é contratipo</b> (LAB8, In The Box, JA Essence, French Avenue, Nuancielo). Contratipo varia de lote para lote e raramente entrega a projeção/fixação do original — trate "inspirado em" como direção, não promessa.</p>
+    <p><b>BH/Contagem é quente.</b> Os ambarados doces e gourmands (Asad Elixir, 1 Million Elixir, Liquid Brun, Domus, Real Commander, Asad Bourbon) viram nuvem enjoativa no calorão. Eles rendem de noite, no frio ou no ar-condicionado — 1 a 2 borrifadas, não cinco.</p>
+    <p><b>Duas redundâncias reais na sua coleção:</b> Liquid Brun e Domus são <b>os dois clones do mesmo Althair</b> (Parfums de Marly) — você tem o mesmo perfume duas vezes. E você tem três "BR540 / doce-âmbar" girando no mesmo território (Unique Red puxa BR540). Diversificação aqui é dinheiro melhor gasto que repetir o que já tem.</p>
+    <p><b>Itens marcados em <span style="color:#a05a4e">vermelho</span> (confiança baixa)</b> eu não consegui confirmar a inspiração/perfil com fonte: Korbaj Musky Signature, Porto Aroma Stellar Nuit, Maison Viegas Heaven e Grand Tygar, JA Summer. Borrife, descreva o que sente e eu corrijo a ficha — não vou inventar perfil pra te agradar.</p>
+    <p><b>Sobre as combinações (camadas):</b> cada par traz a etiqueta <i>base: pirâmide olfativa</i> (montei pela complementaridade de notas e pela regra de layering — encorpado embaixo, cítrico/leve por cima) ou <i>base: comunidade / influencers</i> (layering que circula em fóruns/posts, sobretudo em torno do BR540, que o seu Unique Red imita). Em ambos os casos a referência é o <b>original</b>, não o contratipo que você tem — vale como direção, teste na pele.</p>
+  </details>
+
+  <div class="rule"></div>
+
+  <!-- CATÁLOGO -->
+  <div class="barrow">
+    <div class="count" id="count">34<small>frascos no acervo</small></div>
+    <input id="search" placeholder="buscar perfume, marca, nota…" />
+    <button class="fav-toggle" id="favBtn">♥ favoritos</button>
+  </div>
+  <div class="legend">
+    <span><i class="dot c-alta"></i>perfil confirmado</span>
+    <span><i class="dot c-media"></i>parcial</span>
+    <span><i class="dot c-baixa"></i>a confirmar</span>
+  </div>
+  <div id="grid"></div>
+
+  <div class="install">
+    <b>Salvar como ícone no iPhone</b>
+    <ol>
+      <li>Abra este endereço no <b>Safari</b>.</li>
+      <li>Toque em <b>Compartilhar</b> (o quadrado com seta).</li>
+      <li>Escolha <b>Adicionar à Tela de Início</b>.</li>
+      <li>O ícone dourado "O Cofre" aparece como um app.</li>
+    </ol>
+  </div>
+
+  <footer>
+    Acervo de Eduardo · 34 fragrâncias · ficha viva, atualizável<br>
+    “O perfume certo não é o mais caro — é o certo para a hora.”
+  </footer>
+</div>
+
+<script>
+/* ---------- DADOS ----------
+   conf: alta = inspiração/perfil com fonte | media = parcial | baixa = a confirmar
+   cli:  climas onde funciona  | per: dia|noite|versatil
+   occ:  tags de ocasião */
+const P = [
+  {n:"Bleu de Chanel", b:"Chanel · Parfum", fam:"Amadeirado Aromático", insp:null,
+   notas:"Cítricos, incenso, sândalo, cedro", proj:"Alta", fix:"Alta", conf:"alta",
+   cli:["ameno","quente"], per:"versatil", occ:["trabalho","reuniao","casual","romantico","formal","casamento","assinatura"],
+   nota:"O coringa mais seguro do acervo. A versão Parfum é mais doce/densa que o EDT — no calorão de BH, 2 borrifadas bastam."},
+  {n:"Club de Nuit Intense Man", b:"Armaf", fam:"Frutado Esfumaçado", insp:"Creed Aventus",
+   notas:"Abacaxi, bergamota, bétula esfumaçada, baunilha", proj:"Muito alta", fix:"Muito alta", conf:"alta",
+   cli:["ameno","quente","frio"], per:"versatil", occ:["trabalho","reuniao","casual","formal","balada","assinatura","casamento"],
+   nota:"O melhor custo-benefício da sua coleção. Performa absurdamente — aguenta o calor e o escritório. Seu cavalo de batalha."},
+  {n:"1 Million Elixir", b:"Paco Rabanne", fam:"Âmbar Especiado", insp:null,
+   notas:"Canela, gengibre, madeiras, baunilha", proj:"Muito alta", fix:"Muito alta", conf:"alta",
+   cli:["frio","ameno"], per:"noite", occ:["balada","romantico"],
+   nota:"Bomba de doçura e projeção. No calor vira nuvem cansativa — segure para noite/ar-condicionado, 1–2 sprays no máximo."},
+  {n:"Asad Elixir", b:"Lattafa", fam:"Âmbar Baunilha Doce", insp:null,
+   notas:"Cereja, baunilha, âmbar, praliné", proj:"Alta", fix:"Alta", conf:"alta",
+   cli:["frio","ameno"], per:"noite", occ:["balada","romantico"],
+   nota:"Doce e potente. Território de noite fria; verão não combina."},
+  {n:"Asad Bourbon", b:"Lattafa", fam:"Gourmand Amadeirado", insp:null,
+   notas:"Bourbon, café, baunilha, madeiras", proj:"Alta", fix:"Alta", conf:"alta",
+   cli:["frio","ameno"], per:"noite", occ:["balada","romantico","casual"],
+   nota:"Quente e adocicado. Mesma família-clima do Asad Elixir — você não precisa dos dois no mesmo dia."},
+  {n:"Montblanc Black Meisterstück", b:"Montblanc", fam:"Amadeirado Âmbar / Incenso", insp:null,
+   notas:"Incenso, âmbar, vetiver, gengibre, noz-moscada", proj:"Baixa", fix:"Média", conf:"alta",
+   cli:["ameno","frio","quente"], per:"versatil", occ:["trabalho","reuniao","formal","casual"],
+   nota:"Elegante e discreto — projeção íntima de propósito. Ótimo para escritório/reunião; fraco se a meta é 'marcar presença' a metros."},
+  {n:"Mercedes-Benz Select Night", b:"Mercedes-Benz", fam:"Âmbar Especiado Noturno", insp:null,
+   notas:"Maçã, especiarias, oud suave, baunilha", proj:"Alta", fix:"Alta", conf:"alta",
+   cli:["frio","ameno"], per:"noite", occ:["balada","romantico","formal"],
+   nota:"Noturno doce-especiado, sedutor. Funciona melhor com friozinho."},
+  {n:"Vetiver Absoluto", b:"Maison Viegas", fam:"Vetiver Amadeirado", insp:null,
+   notas:"Vetiver, cítricos, madeiras secas", proj:"Média", fix:"Média", conf:"media",
+   cli:["quente","ameno","calor"], per:"versatil", occ:["trabalho","reuniao","formal","casual","assinatura"],
+   nota:"Vetiver = elegância de baixo risco e ótimo no calor. Uma das peças mais 'adultas' e versáteis que você tem."},
+  {n:"Vulcan Feu", b:"French Avenue", fam:"Frutal Especiado Amadeirado", insp:"God of Fire (SHL 777)",
+   notas:"Manga, gengibre, limão, praliné, oud, âmbar", proj:"Alta", fix:"Alta", conf:"alta",
+   cli:["quente","ameno","calor"], per:"versatil", occ:["balada","casual","assinatura","romantico"],
+   nota:"Manga sofisticada, unissex, chamativo. Diferentão na multidão e segura o calor melhor que os gourmands."},
+  {n:"Liquid Brun", b:"French Avenue", fam:"Gourmand Especiado", insp:"Althair (Parfums de Marly)",
+   notas:"Canela, cardamomo, baunilha bourbon, praliné, ambroxan", proj:"Alta", fix:"Alta", conf:"alta",
+   cli:["frio","ameno"], per:"noite", occ:["romantico","balada","casual"],
+   nota:"Excelente — mas é Althair, IGUAL ao seu Domus. Você tem o mesmo perfume em dois frascos. Use um, presenteie o outro."},
+  {n:"Domus", b:"Nuancielo", fam:"Gourmand Especiado", insp:"Althair (Parfums de Marly)",
+   notas:"Canela, cardamomo, baunilha bourbon, fava tonka, guaiac", proj:"Alta", fix:"Alta", conf:"alta",
+   cli:["frio","ameno"], per:"noite", occ:["romantico","balada","casual"],
+   nota:"Gêmeo do Liquid Brun (mesmo Althair). Ótimo de noite fria; redundante com ele no dia a dia."},
+  {n:"Aether Extrait", b:"French Avenue", fam:"Frutal Verde Fresco", insp:"Greenley (Parfums de Marly)",
+   notas:"Maçã verde, bergamota, cedro, cashmeran, musgo", proj:"Baixa", fix:"Baixa", conf:"alta",
+   cli:["quente","calor","ameno"], per:"dia", occ:["trabalho","casual","diurno"],
+   nota:"Fresco frutal-verde gostoso para o calor — mas performance fraca (quase skin scent). Leve pra reaplicar."},
+  {n:"Unique Red", b:"In The Box", fam:"Âmbar Floral", insp:"Baccarat Rouge 540",
+   notas:"Açafrão, jasmim, amberwood, ambergris, cedro", proj:"Alta", fix:"Alta", conf:"alta",
+   cli:["ameno","quente","frio"], per:"versatil", occ:["romantico","balada","formal","assinatura","casamento","casual"],
+   nota:"O BR540 nacional: doce-amadeirado e versátil. Cuidado, é onipresente — todo mundo conhece esse DNA."},
+  {n:"The Real Commander", b:"In The Box", fam:"Âmbar Fougère Doce", insp:"Stronger With You Intensely",
+   notas:"Canela, toffee, lavanda, baunilha, âmbar, camurça", proj:"Alta", fix:"Alta", conf:"alta",
+   cli:["frio","ameno"], per:"noite", occ:["romantico","balada","formal"],
+   nota:"Doce-quente noturno, fácil de agradar. Família-clima dos gourmands — guarde para o frio."},
+  {n:"Citrus Craving", b:"In The Box", fam:"Cítrico Amadeirado", insp:"Versace Eros Energy",
+   notas:"Bergamota, laranja sanguínea, lima, pimenta-rosa, patchouli, musgo", proj:"Média", fix:"Média", conf:"alta",
+   cli:["quente","calor","ameno"], per:"dia", occ:["trabalho","casual","diurno","academia","reuniao"],
+   nota:"Cítrico vibrante — sua melhor arma para o calor de BH e para 'abrir' os doces pesados em camada."},
+  {n:"Enigmático", b:"LAB8", fam:"Oriental Amadeirado", insp:"Prada Paradigme (reportado)",
+   notas:"Âmbar, bergamota, almíscar, fava tonka, cedro, sândalo, baunilha, guaiac", proj:"Alta", fix:"Alta", conf:"media",
+   cli:["ameno","frio","quente"], per:"versatil", occ:["trabalho","casual","balada","romantico","assinatura"],
+   nota:"Oriental amadeirado versátil e magnético. Inspiração reportada como Prada Paradigme — confirmo se você quiser."},
+  {n:"Effervescent", b:"LAB8 Niche", fam:"Cítrico de Nicho", insp:"Sospiro VibRato",
+   notas:"Toranja, bergamota, jasmim, gengibre, almíscar, cedro, orris", proj:"Média", fix:"Média", conf:"alta",
+   cli:["quente","calor","ameno"], per:"dia", occ:["trabalho","casual","diurno","formal","reuniao"],
+   nota:"Cítrico elegante de nicho. Refinado para o calor — sobe o nível de um look diurno."},
+  {n:"Effervescent Summer", b:"LAB8 Niche", fam:"Cítrico Aquático", insp:"flanker de verão do Effervescent",
+   notas:"Cítricos, brisa marinha, almíscar leve", proj:"Média", fix:"Baixa", conf:"media",
+   cli:["calor","quente"], per:"dia", occ:["casual","diurno","academia"],
+   nota:"Versão praia/verão do Effervescent. Para calorão e dia; não espere fixação longa."},
+  {n:"Gany", b:"JA Essence", fam:"Mineral / Couro Especiado", insp:"Ganymede (Marc-Antoine Barrois)",
+   notas:"Mandarina, açafrão, mineral, couro, madeiras", proj:"Média", fix:"Alta", conf:"alta",
+   cli:["ameno","quente","frio"], per:"versatil", occ:["trabalho","balada","assinatura","romantico","casual"],
+   nota:"Perfil 'diferentão' e elegante (mineral-couro). Se quer fugir do óbvio doce, é aqui."},
+  {n:"Divinity Monkey", b:"JA Essence", fam:"Frutal Aromático Amadeirado", insp:"Hanuman (Boadicea)",
+   notas:"Frutas cítricas, notas aromáticas, madeiras", proj:"Alta", fix:"Alta", conf:"alta",
+   cli:["quente","ameno","calor"], per:"versatil", occ:["casual","balada","diurno","assinatura"],
+   nota:"Fresco-frutado versátil de inspiração cara. Bom no calor sem ser básico."},
+  {n:"Sinfonia", b:"JA Essence", fam:"Cítrico Elegante", insp:"Symphony (Louis Vuitton)",
+   notas:"Cítricos nobres, notas florais, âmbar suave", proj:"Média", fix:"Média", conf:"alta",
+   cli:["quente","ameno","calor"], per:"dia", occ:["trabalho","formal","casual","diurno","reuniao"],
+   nota:"Cítrico nobre e limpo. Toque de classe para o dia/escritório."},
+  {n:"Silent Paths", b:"JA Essence", fam:"Floral Gourmand", insp:"Hundred Silent Ways (Nishane)",
+   notas:"Tuberosa, pêssego, mandarina, baunilha, flores brancas", proj:"Alta", fix:"Alta", conf:"alta",
+   cli:["frio","ameno"], per:"noite", occ:["romantico","formal","balada","casamento"],
+   nota:"Floral gourmand cremoso e marcante — noite e ocasião. Doce: melhor no friozinho."},
+  {n:"Summer", b:"JA Essence", fam:"a confirmar (líquido âmbar)", insp:null,
+   notas:"perfil não confirmado", proj:"—", fix:"—", conf:"baixa",
+   cli:["quente","ameno"], per:"dia", occ:["casual","diurno"],
+   nota:"Não confirmei a inspiração. O nome diz verão, mas o líquido é âmbar — me descreva o cheiro que eu fecho a ficha."},
+  {n:"Oceano", b:"JA Essence", fam:"Fresco Aquático (íris/violeta)", insp:null,
+   notas:"Íris, violeta, lavanda, acorde azul", proj:"Média", fix:"Média", conf:"media",
+   cli:["quente","calor","ameno"], per:"versatil", occ:["trabalho","casual","academia","diurno"],
+   nota:"Coringa azul fresco pelos relatos — melhora quanto mais calor. Bom para o dia a dia."},
+  {n:"Cactus", b:"JA Essence", fam:"Verde Fresco", insp:"fresco descontinuado (a confirmar)",
+   notas:"Verde, cítrico fresco", proj:"Média", fix:"Média", conf:"media",
+   cli:["quente","calor","ameno"], per:"dia", occ:["casual","academia","diurno"],
+   nota:"Verde fresco para o calor. Inspiração específica não confirmada."},
+  {n:"Tropical Vibe", b:"Rayhaan", fam:"Frutal Tropical", insp:null,
+   notas:"Manga, abacaxi, bergamota, coco, âmbar, sândalo", proj:"Média", fix:"Média", conf:"alta",
+   cli:["calor","quente"], per:"dia", occ:["casual","diurno","academia","balada"],
+   nota:"Verão em frasco — praia, calorão, descontração. Frutal doce: pode enjoar se exagerar no calor."},
+  {n:"Nautica Voyage", b:"Nautica", fam:"Aromático Aquático", insp:null,
+   notas:"Maçã, água, lótus, almíscar, madeiras", proj:"Média", fix:"Média", conf:"alta",
+   cli:["calor","quente","ameno"], per:"dia", occ:["casual","diurno","academia"],
+   nota:"Aquático barato e eficiente para o calor. Simples, mas cumpre — bom 'jogador de banco'."},
+  {n:"Bossa", b:"Granado", fam:"Cítrico Aromático Fresco", insp:null,
+   notas:"Cítricos, ervas, fundo amadeirado leve", proj:"Média", fix:"Média", conf:"media",
+   cli:["calor","quente","ameno"], per:"dia", occ:["casual","diurno","academia"],
+   nota:"Refrescante diurno brasileiro. Leve e despretensioso para o calor."},
+  {n:"Amazônico", b:"Granado", fam:"Amadeirado Verde", insp:null,
+   notas:"Verde, madeiras brasileiras, cítricos", proj:"Média", fix:"Média", conf:"media",
+   cli:["quente","ameno","calor"], per:"versatil", occ:["casual","diurno","trabalho"],
+   nota:"Verde-amadeirado nacional, identidade própria. Bom diurno de baixo risco."},
+  {n:"Club de Nuit Precieux I", b:"Armaf", fam:"a confirmar", insp:null,
+   notas:"perfil não confirmado", proj:"Alta", fix:"Alta", conf:"baixa",
+   cli:["ameno","frio"], per:"versatil", occ:["formal","balada","assinatura"],
+   nota:"Linha Precieux da Armaf — não confirmei a inspiração desta referência. Provável amadeirado/sofisticado; confirmo com você."},
+  {n:"Musky Signature", b:"Korbaj Parfums · Extrait", fam:"Almiscarado (a confirmar)", insp:null,
+   notas:"perfil não confirmado", proj:"—", fix:"Alta", conf:"baixa",
+   cli:["ameno","quente"], per:"versatil", occ:["casual","trabalho","assinatura"],
+   nota:"Extrait almiscarado pelo nome — perfil exato não confirmado. Musks tendem a ser limpos/versáteis e 'segunda pele'."},
+  {n:"Stellar Nuit", b:"Porto Aroma · Nº55", fam:"a confirmar (noturno)", insp:null,
+   notas:"perfil não confirmado", proj:"—", fix:"—", conf:"baixa",
+   cli:["frio","ameno"], per:"noite", occ:["balada","romantico","formal"],
+   nota:"'Nuit' + frasco escuro sugere noturno amadeirado/oriental — mas não confirmei. Me descreva que eu corrijo."},
+  {n:"Heaven", b:"Maison Viegas", fam:"Fresco / Limpo (a confirmar)", insp:null,
+   notas:"perfil não confirmado", proj:"—", fix:"—", conf:"baixa",
+   cli:["quente","calor","ameno"], per:"dia", occ:["casual","diurno","academia"],
+   nota:"Rótulo azul-claro sugere fresco/limpo. Inspiração não confirmada."},
+  {n:"Grand Tygar", b:"Maison Viegas", fam:"a confirmar", insp:null,
+   notas:"perfil não confirmado", proj:"—", fix:"—", conf:"baixa",
+   cli:["ameno","frio"], per:"versatil", occ:["casual","assinatura"],
+   nota:"Não confirmei perfil nem inspiração. O nome sugere algo encorpado, mas não vou chutar — me ajuda a fechar a ficha."}
+];
+
+/* ---------- OCASIÕES ---------- */
+const OCC = [
+  {k:"trabalho", t:"Trabalho / Escritório"},
+  {k:"reuniao",  t:"Reunião importante / Negócios"},
+  {k:"casual_calor", base:"casual", force:"calor", t:"Dia a dia / Casual — Calor"},
+  {k:"casual_frio",  base:"casual", force:"frio",  t:"Dia a dia / Casual — Frio"},
+  {k:"romantico",t:"Encontro romântico"},
+  {k:"balada_calor", base:"balada", force:"calor", t:"Balada / Festa / Noite — Calor"},
+  {k:"balada_frio",  base:"balada", force:"frio",  t:"Balada / Festa / Noite — Frio"},
+  {k:"formal",   t:"Evento formal / Gala"},
+  {k:"casamento",t:"Casamento (convidado)"},
+  {k:"academia", t:"Academia / Esporte"},
+  {k:"diurno",   t:"Social diurno / Almoço / Café"},
+  {k:"assinatura",t:"Assinatura — o que me representa"}
+];
+
+/* ---------- COMBINAÇÕES (camadas) — só pares que fazem sentido ---------- */
+const COMBOS = [
+  {a:"Unique Red", b:"Citrus Craving", occ:["romantico","casual","diurno","trabalho","assinatura"], cli:["calor","quente","ameno"], base:"comunidade",
+   nota:"O cítrico levanta o BR540, tira o ar 'pesado/onipresente' e deixa mais fresco e seu. Borrife o Unique Red e finalize 1 do Citrus por cima. Twist fresco/diurno é o uso mais postado do BR540."},
+  {a:"Unique Red", b:"Asad Bourbon", occ:["balada","romantico","casamento"], cli:["frio","ameno"], base:"comunidade",
+   nota:"BR540 + baunilha/gourmand quente: amplia a doçura num rastro denso e sedutor. É o casamento mais citado do BR540 (baunilhas e gourmands doces). Só no frio."},
+  {a:"Bleu de Chanel", b:"Effervescent", occ:["trabalho","reuniao","formal","casual"], cli:["calor","quente","ameno"], base:"piramide",
+   nota:"Cítrico de nicho refina a abertura do Bleu e segura melhor no calor. Combinação profissional impecável."},
+  {a:"Vulcan Feu", b:"Effervescent Summer", occ:["balada","casual","diurno"], cli:["calor","quente"], base:"piramide",
+   nota:"Manga frutal + cítrico aquático = tropical sofisticado. Para calorão e noite de verão."},
+  {a:"Asad Elixir", b:"Citrus Craving", occ:["balada","romantico"], cli:["quente","ameno"], base:"comunidade",
+   nota:"O cítrico corta a doçura sufocante do Elixir e o deixa respirável numa noite mais quente. Regra de ouro do layering: cítrico por cima suaviza o intenso."},
+  {a:"1 Million Elixir", b:"Citrus Craving", occ:["balada","romantico"], cli:["quente","ameno"], base:"comunidade",
+   nota:"Cítrico por cima domestica a bomba doce-especiada e a deixa usável fora do inverno. Mesma lógica: leve sempre por último."},
+  {a:"1 Million Elixir", b:"Vetiver Absoluto", occ:["balada","romantico","assinatura"], cli:["frio","ameno"], base:"piramide",
+   nota:"O vetiver verde aterra o lado adocicado/jovem do Elixir e o torna mais adulto e seco. Famílias que se complementam."},
+  {a:"Liquid Brun", b:"Citrus Craving", occ:["romantico","balada","casual"], cli:["quente","ameno"], base:"comunidade",
+   nota:"Lift cítrico no gourmand de canela/baunilha — fica menos enjoativo e mais usável no calor."},
+  {a:"The Real Commander", b:"Unique Red", occ:["romantico","casamento","formal","balada"], cli:["frio","ameno"], base:"piramide",
+   nota:"Reforço doce-âmbar elegante e marcante para noite. Ambos são doces — só no friozinho."},
+  {a:"Asad Elixir", b:"Mercedes-Benz Select Night", occ:["balada","romantico"], cli:["frio"], base:"piramide",
+   nota:"Dois ambarados especiados num rastro denso e sedutor de noite fria. Pesado de propósito — 1 spray de cada."},
+  {a:"Montblanc Black Meisterstück", b:"Unique Red", occ:["formal","balada","assinatura","casamento"], cli:["frio","ameno"], base:"comunidade",
+   nota:"Madeira seca e incenso aprofundam o BR540 e lhe dão caráter noturno. BR540 + cedro/madeira é o caminho 'opulento' citado pela comunidade."},
+  {a:"Vetiver Absoluto", b:"Bleu de Chanel", occ:["trabalho","reuniao","formal"], cli:["calor","quente","ameno"], base:"piramide",
+   nota:"Vetiver verde sob o Bleu = autoridade discreta de escritório. Aposta segura."},
+  {a:"Montblanc Black Meisterstück", b:"Vetiver Absoluto", occ:["trabalho","reuniao","formal"], cli:["ameno","frio","quente"], base:"piramide",
+   nota:"Amadeirado seco + vetiver: sobriedade adulta para reunião séria. Projeção contida, elegante."},
+  {a:"Gany", b:"Citrus Craving", occ:["trabalho","diurno","assinatura"], cli:["calor","quente","ameno"], base:"piramide",
+   nota:"O cítrico levanta o mineral-couro-açafrão do Gany e o deixa diurno, fresco e fora da curva. Leve por cima, como manda a técnica."},
+  {a:"Silent Paths", b:"Unique Red", occ:["casamento","formal","romantico","balada"], cli:["frio","ameno"], base:"comunidade",
+   nota:"Floral gourmand + BR540 = rastro doce e memorável para ocasião. BR540 + floral é layering clássico de fórum. Dose leve; é potente."},
+  {a:"Sinfonia", b:"Effervescent", occ:["diurno","trabalho","casamento"], cli:["calor","quente","ameno"], base:"piramide",
+   nota:"Dois cítricos elegantes empilhados: elegância luminosa de dia, dentro da mesma família. Refinado e seguro."},
+  {a:"Vetiver Absoluto", b:"Citrus Craving", occ:["casual","diurno","academia"], cli:["calor","quente"], base:"piramide",
+   nota:"Verde + cítrico = frescor máximo para o calor de BH. Cítrico como segunda camada, exatamente como recomendam."},
+  {a:"Tropical Vibe", b:"Effervescent Summer", occ:["casual","diurno","academia","balada"], cli:["calor","quente"], base:"piramide",
+   nota:"Praia pura: frutal tropical + brisa cítrica. Calorão e leveza."},
+  {a:"Nautica Voyage", b:"Citrus Craving", occ:["casual","diurno","academia"], cli:["calor","quente","ameno"], base:"piramide",
+   nota:"Aquático + cítrico: frescor diurno reforçado, baixo risco, bom para o calor."},
+  {a:"Gany", b:"Vetiver Absoluto", occ:["trabalho","assinatura","balada"], cli:["ameno","quente","frio"], base:"piramide",
+   nota:"Mineral-couro do Gany sobre vetiver: assinatura sofisticada e fora da curva."}
+];
+
+/* ---------- ESTADO ---------- */
+let CLIMA="ameno", PERIODO="versatil", showFav=false, FAVS=load();
+function load(){try{return JSON.parse(localStorage.getItem("cofre_favs")||"[]")}catch(e){return[]}}
+function save(){try{localStorage.setItem("cofre_favs",JSON.stringify(FAVS))}catch(e){}}
+
+/* ---------- POPULAR SELETOR ---------- */
+const occSel=document.getElementById("occ");
+OCC.forEach(o=>{const op=document.createElement("option");op.value=o.k;op.textContent=o.t;occSel.appendChild(op)});
+
+document.getElementById("cli").addEventListener("click",e=>{
+  const c=e.target.closest(".chip"); if(!c)return;
+  [...c.parentNode.children].forEach(x=>x.classList.remove("on")); c.classList.add("on"); CLIMA=c.dataset.c;
+});
+document.getElementById("per").addEventListener("click",e=>{
+  const c=e.target.closest(".chip"); if(!c)return;
+  [...c.parentNode.children].forEach(x=>x.classList.remove("on")); c.classList.add("on"); PERIODO=c.dataset.p;
+});
+
+/* ocasiões com "force" travam a temperatura: o chip pula sozinho */
+function setClimaChip(v){
+  CLIMA=v;
+  document.querySelectorAll('#cli .chip').forEach(x=>x.classList.toggle('on',x.dataset.c===v));
+}
+occSel.addEventListener("change",()=>{
+  const o=OCC.find(x=>x.k===occSel.value);
+  const cliBox=document.getElementById("cli");
+  if(o && o.force){ setClimaChip(o.force); cliBox.style.opacity=".5"; cliBox.style.pointerEvents="none"; }
+  else { cliBox.style.opacity="1"; cliBox.style.pointerEvents="auto"; }
+});
+
+/* ---------- MOTOR DE RECOMENDAÇÃO ---------- */
+function score(p,occ){
+  let s=0;
+  if(p.occ.includes(occ)) s+=3; else return -99;          // tem que servir à ocasião
+  if(p.cli.includes(CLIMA)) s+=2;
+  else if((CLIMA==="calor"||CLIMA==="quente") && (p.cli.includes("frio")&&!p.cli.includes("quente"))) s-=3; // doce no calor: penaliza
+  if(PERIODO==="versatil"||p.per==="versatil"||p.per===PERIODO) s+=1; else s-=1.5;
+  if(p.conf==="alta") s+=0.6; else if(p.conf==="baixa") s-=0.4;  // honestidade: priorizo o que confirmei
+  return s;
+}
+document.getElementById("go").addEventListener("click",recommend);
+function recommend(){
+  const o=OCC.find(o=>o.k===occSel.value);
+  const occ=o.base||o.k, occT=o.t;
+  if(o.force) setClimaChip(o.force);   // garante coerência mesmo sem disparar 'change'
+  const ranked=P.map(p=>({p,s:score(p,occ)})).filter(x=>x.s>-50).sort((a,b)=>b.s-a.s);
+  const top=ranked.slice(0,4);
+  const combos=COMBOS.filter(c=>c.occ.includes(occ) && (!c.cli || c.cli.includes(CLIMA)));
+
+  let html=`<div class="verdict"><div class="vhead">${occT} · ${CLIMA} · ${PERIODO==='versatil'?'qualquer período':PERIODO}</div>`;
+  if(!top.length){ html+=`<div class="empty">Nada na coleção encaixa bem aqui. Talvez seja uma lacuna real a preencher.</div>`; }
+  else top.forEach((x,i)=>{
+    const star=i===0?'★ ':'';
+    html+=`<div class="pick"><div><span class="nm">${star}${x.p.n}</span><span class="br">${x.p.b} · ${x.p.fam}</span></div>
+      <div class="why">${reason(x.p)}</div></div>`;
+  });
+  html+=`</div>`;
+
+  if(combos.length){
+    html+=`<div class="verdict"><div class="vhead">Combinações de dois (camadas) para ${occT}</div>`;
+    combos.forEach(c=>{
+      html+=`<div class="combo"><div class="cx"><em>${c.a}</em> + <em>${c.b}</em></div><div class="cn">${c.nota}</div><div class="cbase">${c.base==='comunidade'?'◇ base: comunidade / influencers':'◇ base: pirâmide olfativa'}</div></div>`;
+    });
+    html+=`</div>`;
+  } else {
+    html+=`<div class="verdict"><div class="vhead">Camadas</div><div class="empty">Para esta ocasião eu recomendo uso solo — não force combinação só por forçar.</div></div>`;
+  }
+
+  if((CLIMA==="calor"||CLIMA==="quente")){
+    const doce=top.find(x=>x.p.cli.includes("frio")&&!x.p.cli.includes("quente"));
+    if(doce) html+=`<div class="verdict" style="border-left-color:var(--wine)"><div class="vhead" style="color:#b06a5e">Aviso</div><div class="cn" style="font-size:13px;color:#b9ad92">Está quente e ainda assim um doce/gourmand apareceu acima por falta de opção melhor para a ocasião. Vá de 1 borrifada só, ou prefira a combinação com cítrico.</div></div>`;
+  }
+  document.getElementById("out").innerHTML=html;
+  document.getElementById("out").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function reason(p){
+  if(p.cli.includes(CLIMA)&&(p.per===PERIODO||p.per==="versatil"||PERIODO==="versatil")) return "clima e período certos";
+  if(p.cli.includes(CLIMA)) return "ideal para este clima";
+  if(p.per===PERIODO) return "certo para o período";
+  return "serve, com ressalva";
+}
+
+/* ---------- CATÁLOGO ---------- */
+const grid=document.getElementById("grid"), searchEl=document.getElementById("search");
+function climaTxt(a){return a.map(c=>({frio:"frio",ameno:"ameno",quente:"quente",calor:"calorão"}[c])).join(" · ")}
+function render(){
+  const q=searchEl.value.trim().toLowerCase();
+  let list=P.filter(p=>{
+    if(showFav && !FAVS.includes(p.n)) return false;
+    if(!q) return true;
+    return (p.n+" "+p.b+" "+p.fam+" "+(p.insp||"")+" "+p.notas).toLowerCase().includes(q);
+  });
+  document.getElementById("count").innerHTML=`${list.length}<small>${showFav?'favoritos':'frascos no acervo'}</small>`;
+  grid.innerHTML=list.map(p=>{
+    const fav=FAVS.includes(p.n);
+    const hot=p.cli.includes("calor")||p.cli.includes("quente");
+    return `<div class="card">
+      <div class="conf"><span class="dot c-${p.conf}"></span><span class="heart ${fav?'on':''}" data-n="${p.n}">${fav?'♥':'♡'}</span></div>
+      <h3>${p.n}</h3>
+      <div class="brand">${p.b}</div>
+      ${p.insp?`<div class="insp">Inspirado em <b>${p.insp}</b></div>`:``}
+      <div class="tags">
+        <span class="tag fam">${p.fam}</span>
+        <span class="tag ${hot?'hot':'cli'}">${climaTxt(p.cli)}</span>
+        <span class="tag">${p.per==='versatil'?'dia & noite':p.per}</span>
+      </div>
+      <div class="meta"><span>Projeção <b>${p.proj}</b></span><span>Fixação <b>${p.fix}</b></span></div>
+      ${p.notas&&p.notas!=='perfil não confirmado'?`<div class="meta" style="margin-top:6px"><span style="max-width:none">Notas: ${p.notas}</span></div>`:``}
+      <div class="pnote">${p.nota}</div>
+    </div>`;
+  }).join("");
+}
+grid.addEventListener("click",e=>{
+  const h=e.target.closest(".heart"); if(!h)return;
+  const n=h.dataset.n; const i=FAVS.indexOf(n);
+  if(i>=0)FAVS.splice(i,1); else FAVS.push(n); save(); render();
+});
+searchEl.addEventListener("input",render);
+document.getElementById("favBtn").addEventListener("click",function(){
+  showFav=!showFav; this.classList.toggle("on",showFav); render();
+});
+render();
+
+/* ---------- ÍCONE DO IPHONE (canvas → apple-touch-icon PNG) ---------- */
+(function(){
+  try{
+    const s=180, c=document.createElement("canvas"); c.width=c.height=s;
+    const x=c.getContext("2d");
+    const g=x.createLinearGradient(0,0,s,s); g.addColorStop(0,"#16120d"); g.addColorStop(1,"#080706");
+    x.fillStyle=g; x.fillRect(0,0,s,s);
+    // moldura dourada
+    x.strokeStyle="#c9a96a"; x.lineWidth=3; x.strokeRect(14,14,s-28,s-28);
+    // flacon estilizado
+    x.fillStyle="#c9a96a";
+    x.fillRect(82,40,16,14);            // tampa
+    x.beginPath();
+    x.moveTo(64,58); x.lineTo(116,58); x.lineTo(122,150); x.lineTo(58,150); x.closePath();
+    x.globalAlpha=.18; x.fill(); x.globalAlpha=1;
+    x.lineWidth=2.5; x.strokeStyle="#d8b878"; x.stroke();
+    // inicial E
+    x.fillStyle="#ece4d3"; x.font="600 64px Georgia, serif"; x.textAlign="center"; x.textBaseline="middle";
+    x.fillText("E",90,108);
+    const url=c.toDataURL("image/png");
+    const l=document.createElement("link"); l.rel="apple-touch-icon"; l.setAttribute("sizes","180x180"); l.href=url;
+    document.head.appendChild(l);
+    // manifest dinâmico (PWA)
+    const man={name:"O Cofre — Atelier Olfativo",short_name:"O Cofre",display:"standalone",
+      background_color:"#0e0c0a",theme_color:"#0e0c0a",
+      icons:[{src:url,sizes:"180x180",type:"image/png"}]};
+    const murl=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:"application/json"}));
+    const ml=document.createElement("link"); ml.rel="manifest"; ml.href=murl; document.head.appendChild(ml);
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
